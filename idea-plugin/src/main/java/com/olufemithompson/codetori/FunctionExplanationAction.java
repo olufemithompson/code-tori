@@ -42,8 +42,6 @@ import javax.swing.SwingUtilities;
 
 public class FunctionExplanationAction extends AnAction {
 
-    private String sampleUml = "";
-
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {
         return ActionUpdateThread.BGT;
@@ -84,17 +82,14 @@ public class FunctionExplanationAction extends AnAction {
 
         // Show "Loading..." dialog while making the API request
         SwingUtilities.invokeLater(() -> {
-            UMLDialog umlDialog = new UMLDialog("Loading...", null);
+            UMLDialog umlDialog = new UMLDialog(method.getName(), null);
 
 
             new Thread(() -> {
                 try {
-                    System.out.println("nice");
                     // Make API call to get UML using Gson
                     ExplainResponse explainResponse = callExplainAPI(method.getText());
 
-                    System.out.println("gotten");
-                    System.out.println(explainResponse.getUml());
                     // Render UML diagram as an image
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     SourceStringReader reader = new SourceStringReader(explainResponse.getUml());
@@ -103,7 +98,7 @@ public class FunctionExplanationAction extends AnAction {
 
                     // Update the dialog with UML diagram
                     SwingUtilities.invokeLater(() -> {
-                        umlDialog.updateContent("UML Diagram", imageData);
+                        umlDialog.updateContent(method.getName(), imageData);
                     });
 
                 } catch (Exception ex) {
@@ -159,16 +154,12 @@ public class FunctionExplanationAction extends AnAction {
      * @throws IOException If an error occurs during the API call.
      */
     private ExplainResponse callExplainAPI(String functionCode) throws IOException {
-        String apiUrl = "http://localhost:3000/explain";
-        System.out.println("calling");
-
-        System.out.println(functionCode);
+        String apiUrl = "http://23.92.20.245:3000/explain";
         // Create the request object
         ExplainRequest requestBody = new ExplainRequest(functionCode);
 
         // Convert the request object to JSON using Gson
         String jsonPayload = gson.toJson(requestBody);
-        System.out.println(jsonPayload);
         // Create the request body
         RequestBody body = RequestBody.create(jsonPayload, MediaType.parse("application/json"));
 
