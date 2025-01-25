@@ -13,11 +13,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
 import com.olufemithompson.codetori.dto.ExplainRequest;
 import com.olufemithompson.codetori.dto.ExplainResponse;
 import net.sourceforge.plantuml.SourceStringReader;
-import net.sourceforge.plantuml.bpm.Col;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,20 +56,16 @@ public class FunctionExplanationAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull final AnActionEvent e) {
 
-        // Access the editor and project
         final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
 
-        // Access the PSI file (parsed Java code structure)
         PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
         if (!(psiFile instanceof PsiJavaFile)) {
             Messages.showErrorDialog("This action only works on Java files.", "Error");
             return;
         }
 
-        // Get the caret position
         int caretOffset = editor.getCaretModel().getOffset();
 
-        // Find the method at the caret position
         PsiElement elementAtCaret = psiFile.findElementAt(caretOffset);
         PsiMethod method = findParentMethod(elementAtCaret);
 
@@ -80,32 +74,27 @@ public class FunctionExplanationAction extends AnAction {
             return;
         }
 
-        // Show "Loading..." dialog while making the API request
         SwingUtilities.invokeLater(() -> {
             UMLDialog umlDialog = new UMLDialog(method.getName(), null);
 
 
             new Thread(() -> {
                 try {
-                    // Make API call to get UML using Gson
                     ExplainResponse explainResponse = callExplainAPI(method.getText());
 
-                    // Render UML diagram as an image
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     SourceStringReader reader = new SourceStringReader(explainResponse.getUml());
                     reader.generateImage(outputStream);
                     byte[] imageData = outputStream.toByteArray();
 
-                    // Update the dialog with UML diagram
                     SwingUtilities.invokeLater(() -> {
                         umlDialog.updateContent(method.getName(), imageData);
                     });
 
                 } catch (Exception ex) {
-                    // Handle errors and close the loading dialog
                     SwingUtilities.invokeLater(() -> {
                         umlDialog.close(DialogWrapper.OK_EXIT_CODE);
-                        Messages.showErrorDialog("Failed to fetch UML: " + ex.getMessage(), "Error");
+                        Messages.showErrorDialog("Failed to fetch UML: ", "Error");
                     });
                 }
             }).start();
@@ -124,10 +113,8 @@ public class FunctionExplanationAction extends AnAction {
      */
     @Override
     public void update(@NotNull final AnActionEvent e) {
-        // Get required data keys
         final Project project = e.getProject();
         final Editor editor = e.getData(CommonDataKeys.EDITOR);
-        // Set visibility only in case of existing project and editor
         e.getPresentation().setEnabledAndVisible(project != null && editor != null);
     }
 
@@ -153,7 +140,7 @@ public class FunctionExplanationAction extends AnAction {
      * @return The UML response object from the API.
      * @throws IOException If an error occurs during the API call.
      */
-    private ExplainResponse callExplainAPI(String functionCode) throws IOException {
+    private ExplainResponse callExplainAPI(final String functionCode) throws IOException {
         String apiUrl = "http://23.92.20.245:3000/explain";
         // Create the request object
         ExplainRequest requestBody = new ExplainRequest(functionCode);
@@ -172,7 +159,7 @@ public class FunctionExplanationAction extends AnAction {
         // Execute the request and get the response
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
+                throw new IOException("Failed to fetch UML. ");
             }
 
             // Deserialize the response body to an ExplainResponse object
@@ -189,7 +176,7 @@ public class FunctionExplanationAction extends AnAction {
         private final JPanel panel;
         private byte[] imageData;
 
-        protected UMLDialog(String title, byte[] initialImageData) {
+        protected UMLDialog(final String title, final byte[] initialImageData) {
             super(true);
             this.imageData = initialImageData;
 
@@ -228,7 +215,7 @@ public class FunctionExplanationAction extends AnAction {
         /**
          * Updates the dialog content with UML diagram and title.
          */
-        public void updateContent(String title, byte[] newImageData) {
+        public void updateContent(final String title, final byte[] newImageData) {
             this.imageData = newImageData;
             contentLabel.setText("");
             contentLabel.setIcon(new ImageIcon(imageData));
