@@ -1,0 +1,44 @@
+<idea-plugin>
+
+    <!-- Unique id for this plugin. Must stay constant for the life of the plugin. -->
+    <id>org.intellij.sdk.editor</id>
+
+    <!-- Text to display as name on Settings | Plugin page -->
+    <name>SDK: Editor Sample</name>
+
+    <!-- Product and plugin compatibility requirements -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+
+    <!-- Text to display as description on Settings | Plugin page -->
+    <description>
+        <![CDATA[
+      Illustrates various basic Editor APIs. Requires at least project to be open, and a file open in the editor
+      to see the menu items this plugin adds to the editor popup menu.<br>Mouse over each of this plugin's menu items
+      to see hints in the lower left corner of the IDE.
+    ]]>
+    </description>
+    <change-notes>
+        <![CDATA[
+      <ul>
+        <li><b>2.0.0</b> Convert to Gradle-based plugin</li>
+        <li><b>1.0.0</b> Release 2019.1 and earlier.</li>
+      </ul>
+    ]]>
+    </change-notes>
+
+    <!-- Text to display as company information on Settings | Plugin page -->
+    <vendor url="https://plugins.jetbrains.com">IntelliJ Platform SDK</vendor>
+
+    <actions>
+        <action id="EditorBasics.LogicalPositionIllustration"
+                class="com.olufemithompson.codetori.FunctionExplanationAction"
+                text="Explain this function"
+                description="Gives a visual explanation of what this function is doing."
+                icon="SdkIcons.Sdk_default_icon">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt G"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+    </actions>
+
+</idea-plugin>
